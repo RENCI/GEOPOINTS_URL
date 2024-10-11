@@ -20,6 +20,54 @@ import pandas as pd
 import numpy as np
 import time as tm
 import utilities as utilities
+import generate_urls_from_times as genurls 
+
+def strip_ensemble_from_url(urls)->str:
+    """
+    We mandate that the URLs input to this fetcher are those used to access the TDS data. The "ensemble" information will be in position .split('/')[-2]
+    eg. 'http://tds.renci.org/thredds/dodsC/2021/nam/2021052318/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.63.nc'
+    
+    Parameters:
+        urls: list(str). list of valid urls
+    Returns:
+        Ensemble: <str>
+    """
+    url = grab_first_url_from_urllist(urls)
+    try:
+        words = url.split('/')
+        ensemble=words[-2] # Usually nowcast,forecast, etc 
+    except IndexError as e:
+        print(f'strip_ensemble_from_url Uexpected failure try next:{e}')
+    return ensemble
+
+def first_true(iterable, default=False, pred=None):
+    """
+    itertools recipe found in the Python 3 docs
+    Returns the first true value in the iterable.
+    If no true value is found, returns *default*
+    If *pred* is not None, returns the first item
+    for which pred(item) is true.
+
+    first_true([a,b,c], x) --> a or b or c or x
+    first_true([a,b], x, f) --> a if f(a) else b if f(b) else x
+
+    """
+    return next(filter(pred, iterable), default)
+
+def grab_first_url_from_urllist(urls)->str:
+    """
+    eg. 'http://tds.renci.org/thredds/dodsC/2021/nam/2021052318/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.63.nc'
+    
+    Parameters:
+        urls: list(str). list of valid urls
+    Returns:
+        url: <str> . Fetch first available, valid url in the list
+    """
+    if not isinstance(urls, list):
+        print('first url: URLs must be in list form')
+        sys.exit(1)
+    url = first_true(urls)
+    return url
 
 def main(args):
     variable_name=args.variable_name
@@ -27,6 +75,12 @@ def main(args):
     lon=args.lon
     lat=args.lat
     nearest_neighbors=args.kmax
+    nhours=-24 # Look back 24 hours
+
+    #print(f' Build list of URLs to fetch: nhours lookback is {nhours}')
+    #rpl = genurls.generate_urls_from_times(url=url,timein=None, timeout=None, ndays=nhours, grid_name=None, instance_name=None, config_name=None)
+    #new_urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
+    #print(f' New URL list {new_urls}')
 
     print(f'Lon {lon}. Lat {lat}')
     print(f'Selected nearest neighbors values is {nearest_neighbors}')
