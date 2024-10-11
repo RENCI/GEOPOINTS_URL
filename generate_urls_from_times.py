@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 
-from utilities.utilities import utilities as utilities
+import utilities as utilities
 from argparse import ArgumentParser
 
 # load the logger class
