@@ -49,7 +49,7 @@ def is_hurricane(test_val)->bool:
                 outid = int(test_val)
                 is_hurricane=True
             except ValueError:
-                utilities.log.error('test indicates not a hurricane nor a casting. Perhaps a format issue ?.  Got {}: Abort'.format(test_val))
+                logger.error('test indicates not a hurricane nor a casting. Perhaps a format issue ?.  Got %s: Abort', test_val)
                 raise
                 #sys.exit(1)
     return is_hurricane
@@ -67,7 +67,7 @@ def generate_six_hour_time_steps_from_range(time_range)->list:
 
     """
     if is_hurricane(time_range[0]):
-        utilities.log.info('Determined input time_range URL is a Hurricane')
+        logger.info('Determined input time_range URL is a Hurricane')
         list_of_times = generate_six_hour_time_advisories_from_range(time_range)
     else:
         list_of_times = generate_six_hour_time_castings_from_range(time_range)
@@ -140,7 +140,7 @@ def generate_six_hour_time_steps_from_offset(time_value, offset)->list:
         timelist: list of times/advisories in the a string format to build new urls
     """
     if is_hurricane(time_value):
-        utilities.log.info('Determined input URL is a Hurricane')
+        logger.info('Determined input URL is a Hurricane')
         list_of_times = generate_six_hour_time_advisories_from_offset(time_value,offset) 
     else:
         list_of_times = generate_six_hour_time_castings_from_offset(time_value,offset)
@@ -165,7 +165,7 @@ def generate_six_hour_time_castings_from_offset(time_value,offset)->list:
     starttime = stoptime + dt.timedelta(days=offset)
 
     if starttime > stoptime:
-        utilities.log.warning('Stoptime < starttime. Suypplied offset was {}days: Reordering'.format(offset))
+        logger.warning('Stoptime < starttime. Suypplied offset was %sdays: Reordering' ,offset)
         starttime,stoptime = stoptime,starttime
     return generate_six_hour_time_steps_from_range( (starttime.strftime('%Y-%m-%d %H:%M:%S'), stoptime.strftime('%Y-%m-%d %H:%M:%S')) )
     
@@ -256,7 +256,7 @@ def construct_url_from_yaml( config, intime, instance, ensemble, gridname, hurri
     """
     # hurricane_yaml_source is a special case scenario
     if is_hurricane(intime):
-        utilities.log.debug('Request for YAML build of Hurricane URL. subdir is {}'.format(hurricane_yaml_source))
+        logger.debug('Request for YAML build of Hurricane URL. subdir is %s', hurricane_yaml_source)
         intime = str(intime)
         subdir = hurricane_yaml_year # This is certainly NOT generalized
         source=hurricane_yaml_source
@@ -297,7 +297,7 @@ def construct_starttime_from_offset(stoptime,ndays):
         tstart = tstop + dt.timedelta(days=ndays)
         starttime = tstart.strftime('%Y-%m-%d %H:%M:%S')
         return starttime
-    utilities.log.error('Fell out the bottom of construct_starttime_from_offset: Abort')
+    logger.error('Fell out the bottom of construct_starttime_from_offset: Abort')
     raise
     ##sys.exit(1)
 
@@ -362,11 +362,11 @@ class generate_urls_from_times(object):
             self.instance_name = instance_name # This is for potentially mapping new instances to urls
             self.grid_name = grid_name
             if self.instance_name is None:
-                utilities.log.error('Must specify an instance value if building URLs based on a YAML. None specified: Abort')
+                logger.error('Must specify an instance value if building URLs based on a YAML. None specified: Abort')
                 raise
                 ##sys.exit(1)
             if self.grid_name is None:
-                utilities.log.error('Must specify a grid_name if building URLs based on a YAML. None specified: Abort')
+                logger.error('Must specify a grid_name if building URLs based on a YAML. None specified: Abort')
                 raise
                 ##sys.exit(1)
             self.hurricane_yaml_source=hurricane_yaml_source
@@ -374,7 +374,7 @@ class generate_urls_from_times(object):
 
         # timeout MUST be supplied somehow
         if timeout is None and stoptime is None:
-            utilities.log.error('timeout is not set and no URL provided: Abort')
+            logger.error('timeout is not set and no URL provided: Abort')
             raise
             ##sys.exit(1)
         if timeout is not None:
@@ -383,7 +383,7 @@ class generate_urls_from_times(object):
         # Find timein
         if timein is None:
             if ndays is None:
-                utilities.log.error('No timein or ndays specified.')
+                logger.error('No timein or ndays specified.')
                 raise
                 ##sys.exit(1)
             else:
@@ -423,7 +423,7 @@ class generate_urls_from_times(object):
             newurl='/'.join(words)
             if newurl not in urls:
                  urls.append(newurl)
-        utilities.log.debug('Constructed {} urls of ensemble {}'.format(len(urls),ensemble))
+        logger.debug('Constructed %s urls of ensemble %s', urls, ensemble)
         return urls
 
     def build_url_list_from_template_url_and_offset(self, ensemble='nowcast')->list:
@@ -445,7 +445,7 @@ class generate_urls_from_times(object):
         time_value=self.stoptime  # Could also be an advisory
         offset = self.ndays
         if offset > 0:
-            utilities.log.warning('Offset >0 specified: Behavior is not tested')
+            logger.warning('Offset >0 specified: Behavior is not tested')
         #timein = url.split('/')[-6] # Maybe need to check for a Hurricane Advisory also 
         list_of_times = generate_six_hour_time_steps_from_offset(time_value,offset)
         list_of_instances = generate_list_of_instances(list_of_times, self.grid_name, self.instance_name)
@@ -458,7 +458,7 @@ class generate_urls_from_times(object):
             newurl='/'.join(words)
             if newurl not in urls:
                  urls.append(newurl)
-        utilities.log.debug('Constructed {} urls of ensemble {}'.format(len(urls),ensemble))
+        logger.debug('Constructed %s urls of ensemble %s', urls, ensemble)
         return urls
 
 # Approach Used by ADDA
@@ -483,13 +483,13 @@ class generate_urls_from_times(object):
             urls: list(str). List of valid URLs for processing
         """
         if self.config_name is None:
-            utilities.log.error('self.config_name is None. Cannot use the YAML generators: Abort')
+            logger.error('self.config_name is None. Cannot use the YAML generators: Abort')
             raise
             ##sys.exit(1)
         try:
             config = utilities.load_config(self.config_name)
         except FileNotFoundError: # OSError:
-            utilities.log.error('No URL structural config  yml file found.{}: Abort'.format(self.config_name))
+            logger.error('No URL structural config yml file found: %s: Abort', self.config_name)
             raise
             ##sys.exit(1)
         
@@ -503,7 +503,7 @@ class generate_urls_from_times(object):
             url = construct_url_from_yaml( config, time, self.instance_name, ensemble, self.grid_name, hurricane_yaml_year=self.hurricane_yaml_year, hurricane_yaml_source=self.hurricane_yaml_source )
             if url not in urls:
                  urls.append(url)
-        utilities.log.info('Constructed {} urls of ensemble {} based on the YML'.format(len(urls),ensemble))
+        logger.info('Constructed %s urls of ensemble %s based on the YML', urls, ensemble)
         return urls
 
 # Approach Used by ADDA
@@ -529,20 +529,20 @@ class generate_urls_from_times(object):
             urls: list(str). List of valid URLs for processing
         """
         if self.config_name is None:
-            utilities.log.error('self.config_name is None. Cannot use the YAML generators: Abort')
+            logger.error('self.config_name is None. Cannot use the YAML generators: Abort')
             raise
             ##sys.exit(1)
         try:
             config = utilities.load_config(self.config_name)
         except OSError:
-            utilities.log.error('No URL structural config  yml file found.{}: Abort'.format(self.config_name))
+            logger.exception('No URL structural config  yml file found. %s: Abort', self.config_name)
             raise 
             ##sys.exit(1)
 
         time_value=self.stoptime # Could also be an advisory
         offset = self.ndays
         if offset > 0:
-            utilities.log.warning('Offset >0 specified: Behavior is not tested')
+            logger.warning('Offset >0 specified: Behavior is not tested')
                  
         list_of_times = generate_six_hour_time_steps_from_offset(time_value,offset)
         list_of_instances = generate_list_of_instances(list_of_times, self.grid_name, self.instance_name)
@@ -551,7 +551,7 @@ class generate_urls_from_times(object):
             url = construct_url_from_yaml( config, time, self.instance_name, ensemble, self.grid_name, hurricane_yaml_year=self.hurricane_yaml_year, hurricane_yaml_source=self.hurricane_yaml_source )
             if url not in urls:
                  urls.append(url)
-        utilities.log.warning('Constructed {} urls of ensemble {} based on the YML and offset'.format(len(urls),ensemble))
+        logger.warning('Constructed %s urls of ensemble %s based on the YML and offset', urls, ensemble)
         return urls
 
 def main(args):
@@ -559,16 +559,13 @@ def main(args):
     A simple main method to demonstrate the use of this class
     """
 
-    #main_config = utilities.init_logging(subdir=None, config_file='../config/main.yml')
-    main_config = utilities.init_logging(subdir=None,config_file=os.path.join(os.path.dirname(__file__),'../config','main.yml'))
-
     config_name=args.config_name if args.config_name is not None else os.path.join(os.path.dirname(__file__), '../config', 'url_framework.yml')
 
     # Set up IO env
-    utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
+    logger.info("Product Level Working in %s.", os.getcwd())
 
     if args.instance_name is not None:
-        print('Ignoring args.instance_name for the testing sequence')
+        logger.debug('Ignoring args.instance_name for the testing sequence')
 
     #
     # Need to specify precedence in the arguments provided for testing main
