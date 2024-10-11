@@ -20,7 +20,16 @@ import pandas as pd
 import numpy as np
 import time as tm
 import utilities as utilities
-import generate_urls_from_times as genurls 
+import generate_urls_from_times as genurls
+
+# load the logger class
+from logger import LoggingUtil
+
+# get the log level and directory from the environment (or default).
+log_level, log_path = LoggingUtil.prep_for_logging()
+
+# create a logger
+logger = LoggingUtil.init_logging("geopoints_url", level=log_level, line_format='medium', log_file_path=log_path)
 
 def strip_ensemble_from_url(urls)->str:
     """
@@ -113,4 +122,8 @@ if __name__ == '__main__':
     parser.add_argument('--keep_headers', action='store_true', default=True,
                         help='Boolean: Indicates to add header names to output files')
     args = parser.parse_args()
+
+    # log the input args
+    logger.debug('input args: %s', args)
+
     sys.exit(main(args))

@@ -21,6 +21,16 @@ import datetime as dt
 from utilities.utilities import utilities as utilities
 from argparse import ArgumentParser
 
+# load the logger class
+from logger import LoggingUtil
+
+# get the log level and directory from the environment (or default).
+log_level, log_path = LoggingUtil.prep_for_logging()
+
+# create a logger
+logger = LoggingUtil.init_logging("generate_urls_from_times", level=log_level, line_format='medium', log_file_path=log_path)
+
+
 def is_hurricane(test_val)->bool:
     """
     Determine of the input test val is a Date, an Int or something else
@@ -615,6 +625,10 @@ if __name__ == '__main__':
     parser.add_argument('--hurricane_yaml_source', action='store', dest='hurricane_yaml_source', default=None,
                         help='String: Needed only for Hurricane/YML procedures')
     args = parser.parse_args()
+
+    # log the input args
+    logger.debug('input args: %s', args)
+
     sys.exit(main(args))
 
 # cat ../config/local_instance.yml
