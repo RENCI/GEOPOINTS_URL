@@ -8,4 +8,15 @@ import geopoints_url
 
 
 def test_geopoints_url():
-    pass
+    """
+        This tests the "geopoints url" functionality
+
+    """
+
+    # initialize the input arguments
+
+    # call the function, check the return
+    ret_val = True
+
+    # assert any errors
+    assert ret_val
