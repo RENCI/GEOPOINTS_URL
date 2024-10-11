@@ -49,7 +49,7 @@ def is_hurricane(test_val)->bool:
                 outid = int(test_val)
                 is_hurricane=True
             except ValueError:
-                logger.error('test indicates not a hurricane nor a casting. Perhaps a format issue ?.  Got %s: Abort', test_val)
+                logger.exception('test indicates not a hurricane nor a casting. Perhaps a format issue ?.  Got %s: Abort', test_val)
                 raise
                 #sys.exit(1)
     return is_hurricane
@@ -489,7 +489,7 @@ class generate_urls_from_times(object):
         try:
             config = utilities.load_config(self.config_name)
         except FileNotFoundError: # OSError:
-            logger.error('No URL structural config yml file found: %s: Abort', self.config_name)
+            logger.exception('No URL structural config yml file found: %s: Abort', self.config_name)
             raise
             ##sys.exit(1)
         
