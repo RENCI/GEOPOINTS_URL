@@ -117,23 +117,17 @@ def main(args):
             df_product_data, df_product_metadata, df_excluded = utilities.Combined_pipeline(url, variable_name, lon, lat, nearest_neighbors)
             df_product_data.to_csv(f'Product_data.csv',header=args.keep_headers)
             df_product_metadata.to_csv(f'Product_meta.csv',header=args.keep_headers)
-            print(f' DF EX {df_excluded}')
-            #logger.info(f' Excluded URL list is {df_excluded}')
-            #df_excluded.to_csv(f'Product_excluded_geopoints.csv')
-            print(df_product_data)
-            #df_product_data.to_pickle(f'Product_data.pkl')
             data_list.append(df_product_data)
             exclude_list.append(df_excluded)
         except (OSError,FileNotFoundError):
-            print(f' Current URL was not found {url}. Try another')
+            logger.debug(f' Current URL was not found {url}. Try another')
             pass
-    print(f'Fetching Runtime was {tm.time()-t0}')
+    logger.info(f'Fetching Runtime was {tm.time()-t0}')
 
     df=pd.concat(data_list,axis=0)
     df = (df.reset_index()
         .drop_duplicates(subset='index', keep='last')
         .set_index('index').sort_index())
-    print(df.shape)
     df_excluded=pd.concat(exclude_list,axis=0)
 
     logger.debug(f'Dimension of final data array: {df.shape}')
