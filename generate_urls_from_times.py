@@ -67,7 +67,7 @@ def generate_six_hour_time_steps_from_range(time_range)->list:
 
     """
     if is_hurricane(time_range[0]):
-        logger.info('Determined input time_range URL is a Hurricane')
+        logger.debug('Determined input time_range URL is a Hurricane')
         list_of_times = generate_six_hour_time_advisories_from_range(time_range)
     else:
         list_of_times = generate_six_hour_time_castings_from_range(time_range)
@@ -140,7 +140,7 @@ def generate_six_hour_time_steps_from_offset(time_value, offset)->list:
         timelist: list of times/advisories in the a string format to build new urls
     """
     if is_hurricane(time_value):
-        logger.info('Determined input URL is a Hurricane')
+        logger.debug('Determined input URL is a Hurricane')
         list_of_times = generate_six_hour_time_advisories_from_offset(time_value,offset) 
     else:
         list_of_times = generate_six_hour_time_castings_from_offset(time_value,offset)
@@ -165,8 +165,9 @@ def generate_six_hour_time_castings_from_offset(time_value,offset)->list:
     starttime = stoptime + dt.timedelta(days=offset)
 
     if starttime > stoptime:
-        logger.warning('Stoptime < starttime. Suypplied offset was %sdays: Reordering' ,offset)
+        logger.warning('Stoptime < starttime. Supplied offset was %s days: Reordering', offset)
         starttime,stoptime = stoptime,starttime
+        
     return generate_six_hour_time_steps_from_range( (starttime.strftime('%Y-%m-%d %H:%M:%S'), stoptime.strftime('%Y-%m-%d %H:%M:%S')) )
     
 def generate_six_hour_time_advisories_from_offset(strtime,offset)->list:
@@ -195,11 +196,12 @@ def generate_six_hour_time_advisories_from_offset(strtime,offset)->list:
     for inc in range(*range_values):
         list_of_advisories.append("{:02d}".format(stop_advisory+inc))
     list_of_advisories=[i for i in list_of_advisories if int(i) >= 0]
-    # Keep the inoput value ?
+    # Keep the input value ?
     list_of_advisories.append("{:02d}".format(stop_advisory))
     # A last ditch sort to to be sure
     list_of_advisories.sort()
     return list_of_advisories
+
 
 def grab_years_from_time_list(list_of_times)->list:
     """
@@ -221,6 +223,7 @@ def grab_years_from_time_list(list_of_times)->list:
             value=time 
         list_of_years.append(value)
     return list_of_years
+
 
 def generate_list_of_instances(list_of_times, in_gridname, in_instance):
     """
@@ -245,6 +248,7 @@ def generate_list_of_instances(list_of_times, in_gridname, in_instance):
 
     instance_list = num_entries*[instance]
     return instance_list 
+
 
 # Expect this to be part of a looped  list of times from which appending will be applied
 def construct_url_from_yaml( config, intime, instance, ensemble, gridname, hurricane_yaml_year=None, hurricane_yaml_source=None ):
@@ -275,6 +279,7 @@ def construct_url_from_yaml( config, intime, instance, ensemble, gridname, hurri
           )
     return url
 
+
 def construct_starttime_from_offset(stoptime,ndays):
     """
     Construct an appropriate starttime given the stoptime and offset.
@@ -290,15 +295,15 @@ def construct_starttime_from_offset(stoptime,ndays):
     if is_hurricane(stoptime):
         num_6hour_look_asides = int(24*ndays/6)
         stopadv=int(stoptime)
-        startadv=stopadv+num_6hour_look_asides # We normally assueme offset is negative but that is not enforced
+        startadv=stopadv+num_6hour_look_asides # We normally assume offset is negative but that is not enforced
         return startadv
     else:
         tstop = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')
         tstart = tstop + dt.timedelta(days=ndays)
         starttime = tstart.strftime('%Y-%m-%d %H:%M:%S')
         return starttime
-    logger.error('Fell out the bottom of construct_starttime_from_offset: Abort')
-    raise
+    
+    raise 'Fell out the bottom of construct_starttime_from_offset: Abort'
     ##sys.exit(1)
 
 class generate_urls_from_times(object):
@@ -393,9 +398,9 @@ class generate_urls_from_times(object):
         self.starttime=starttime
         self.stoptime=stoptime
         self.ndays=ndays
-        print('Current time (or advisory) range is {} to {}. Specified ndays is {}'.format(self.starttime,self.stoptime, self.ndays))
+        logger.debug('Current time (or advisory) range is %s to %s. Specified ndays is %s', self.starttime, self.stoptime, self.ndays)
         if url is not None:
-           print('Current estimated ensemble {}, instance {}, and gridname {}'.format(self.ensemble,self.instance_name,self.grid_name))
+            logger.debug('Current estimated ensemble %s, instance #s, and gridname #s', self.ensemble, self.instance_name, self.grid_name)
 
     def build_url_list_from_template_url_and_times(self, ensemble='nowcast')-> list:
         """
@@ -497,8 +502,8 @@ class generate_urls_from_times(object):
         list_of_times = generate_six_hour_time_steps_from_range(time_range)
         list_of_instances = generate_list_of_instances(list_of_times, self.grid_name, self.instance_name)
         urls = list()
-        print(list_of_times)
-        print(list_of_instances)
+        logger.debug('list_of_times: %s', list_of_times)
+        logger.debug('list_of_instances: %s', list_of_instances)
         for time,instance in zip(list_of_times,list_of_instances):
             url = construct_url_from_yaml( config, time, self.instance_name, ensemble, self.grid_name, hurricane_yaml_year=self.hurricane_yaml_year, hurricane_yaml_source=self.hurricane_yaml_source )
             if url not in urls:
@@ -529,8 +534,7 @@ class generate_urls_from_times(object):
             urls: list(str). List of valid URLs for processing
         """
         if self.config_name is None:
-            logger.error('self.config_name is None. Cannot use the YAML generators: Abort')
-            raise
+            raise 'self.config_name is None. Cannot use the YAML generators: Abort'
             ##sys.exit(1)
         try:
             config = utilities.load_config(self.config_name)
@@ -572,35 +576,34 @@ def main(args):
     #
 
     if  args.url is not None:
-        print('Selecting a template-url generation method')
+        logger.debug('Selecting a template-url generation method')
         if args.timein is not None:
-            print('Selecting a specific time-range procedure')
+            logger.debug('Selecting a specific time-range procedure')
             rpl = generate_urls_from_times(url=args.url,timein=args.timein, timeout=args.timeout, ndays=None, grid_name=None, instance_name=None, config_name=None)
             new_urls = rpl.build_url_list_from_template_url_and_times(ensemble=args.ensemble)
         else:
-            print('Selecting time+ndays procedure')
+            logger.debug('Selecting time+ndays procedure')
             rpl = generate_urls_from_times(url=args.url,timein=None, timeout=args.timeout, ndays=args.ndays, grid_name=None, instance_name=None, config_name=None)
             new_urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
     else:
-        print('Selecting a YAML generation method') 
+        logger.debug('Selecting a YAML generation method') 
         if args.grid_name is None or args.instance_name is None or config_name is None:
-            print('YAML-based procedurs requires gridname, instance_name and config_name')
-            raise
+            raise 'YAML-based procedurs requires gridname, instance_name and config_name'
             ##sys.exit(1)
         if args.hurricane_yaml_year is not None and args.hurricane_yaml_source is not None:
-            print('Detected values required for building YAML-based Hurricane urls')
+            logger.debug('Detected values required for building YAML-based Hurricane urls')
         if args.timein is not None:
-            print('Selecting a specific time-range procedure')
+            logger.debug('Selecting a specific time-range procedure')
             rpl = generate_urls_from_times(timein=args.timein, timeout=args.timeout, ndays=None, grid_name=args.grid_name, 
                 instance_name=args.instance_name, config_name=args.config_name, hurricane_yaml_year=args.hurricane_yaml_year,hurricane_yaml_source=args.hurricane_yaml_source)
             new_urls = rpl.build_url_list_from_yaml_and_times(ensemble=args.ensemble)
         else:
-            print('Selecting time+ndays procedure')
+            logger.debug('Selecting time+ndays procedure')
             rpl = generate_urls_from_times(timein=None, timeout=args.timeout, ndays=args.ndays, grid_name=args.grid_name,
                 instance_name=args.instance_name, config_name=args.config_name, hurricane_yaml_year=args.hurricane_yaml_year,hurricane_yaml_source=args.hurricane_yaml_source)
             new_urls = rpl.build_url_list_from_yaml_and_times(ensemble=args.ensemble)
 
-    print(new_urls)
+    logger.debug(new_urls)
 
 
 if __name__ == '__main__':
