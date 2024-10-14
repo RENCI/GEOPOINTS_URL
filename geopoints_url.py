@@ -46,7 +46,7 @@ def strip_ensemble_from_url(urls)->str:
         words = url.split('/')
         ensemble=words[-2] # Usually nowcast,forecast, etc 
     except IndexError as e:
-        print(f'strip_ensemble_from_url Uexpected failure try next:{e}')
+        logger.exception(f'strip_ensemble_from_url Unexpected failure try next:')
     return ensemble
 
 def first_true(iterable, default=False, pred=None):
@@ -73,7 +73,7 @@ def grab_first_url_from_urllist(urls)->str:
         url: <str> . Fetch first available, valid url in the list
     """
     if not isinstance(urls, list):
-        print('first url: URLs must be in list form')
+        logger.debug('first url: URLs must be in list form')
         sys.exit(1)
     url = first_true(urls)
     return url
@@ -86,23 +86,25 @@ def main(args):
     nearest_neighbors=args.kmax
     nhours=-24 # Look back 24 hours
 
-    #print(f' Build list of URLs to fetch: nhours lookback is {nhours}')
+    #logger.debug('Build list of URLs to fetch: nhours lookback is: %s', nhours)
     #rpl = genurls.generate_urls_from_times(url=url,timein=None, timeout=None, ndays=nhours, grid_name=None, instance_name=None, config_name=None)
     #new_urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
-    #print(f' New URL list {new_urls}')
+    #logger.debug('New URL list: %s', new_urls')
 
-    print(f'Lon {lon}. Lat {lat}')
-    print(f'Selected nearest neighbors values is {nearest_neighbors}')
+    logger.debug('Lon: %s, Lat: %s', lon, lat)
+    logger.debug('Selected nearest neighbors values is {nearest_neighbors}')
 
     t0=tm.time()
     df_product_data, df_product_metadata, df_excluded = utilities.Combined_pipeline(url, variable_name, lon, lat, nearest_neighbors)
     df_product_data.to_csv(f'Product_data.csv',header=args.keep_headers)
     df_product_metadata.to_csv(f'Product_meta.csv',header=args.keep_headers)
-    print(df_excluded)
+    logger.debug('df_excluded: %s', df_excluded)
     df_excluded.to_csv(f'Product_excluded_geopoints.csv')
-    print(df_product_data)
+    logger.debug('df_product_data: %s', df_product_data)
+
     df_product_data.to_pickle(f'Product_data.pkl')
-    print(f'Finished. Runtime was {tm.time()-t0}')
+
+    logger.debug('Finished. Runtime was: %s', tm.time()-t0)
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
