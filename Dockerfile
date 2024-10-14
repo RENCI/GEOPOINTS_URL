@@ -26,9 +26,9 @@ LABEL maintainer="powen@renci.org"
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-# create a new non-root user and switch to it
-RUN useradd --create-home -u 1000 nru
-USER nru
+## create a new non-root user and switch to it
+#RUN useradd --create-home -u 1000 nru
+#USER nru
 
 # Create the directory for the code and cd to it
 WORKDIR /test/geopoints.url
@@ -37,4 +37,4 @@ WORKDIR /test/geopoints.url
 COPY . .
 
 # start the service entry point
-ENTRYPOINT ["/bin/sh", "-c", "while true; do date; sleep 3600; done"]
+ENTRYPOINT ["/bin/sh", "-c", "sleep infinity"]
