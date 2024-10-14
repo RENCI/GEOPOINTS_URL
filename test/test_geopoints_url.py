@@ -27,6 +27,8 @@ def test_geopoints_url():
     # --url '<TDS_SVR>thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc' --variable_name 'zeta' --lon -79.6725155674
     # --lat 32.8596518752
 
+    # --url '<TDS_SVR>/thredds/catalog/2024/gfs/2024041712/NCSC_SAB_v1.23/ht-ncfs.renci.org/ncsc123_gfs_sb55.01/nowcast/catalog.html
+
     # get the URL of the TDS server
     tds_svr: str = os.getenv('TDS_SVR', None)
 
@@ -35,10 +37,14 @@ def test_geopoints_url():
 
     # create a list of test urls
     urls: list = [
-        tds_svr + "thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc",
-        # tds_svr + "thredds/dodsC/Datalayers/test/fort.63.nc",
-        # tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc",
-        # tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc"
+        # this test URL expects the TDS url to be from the dev namespace.
+        # tds_svr + "thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc",
+
+        # these test URLs expect the TDS url to be from the prod namespace.
+        # if running in k8s, the TDS service name can be used.
+        tds_svr + "thredds/dodsC/Datalayers/test/fort.63.nc",
+        tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc",
+        tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc"
         ]
 
     # create a named tuple for the args to mimic the input
