@@ -400,7 +400,7 @@ class generate_urls_from_times(object):
         self.ndays=ndays
         logger.debug('Current time (or advisory) range is %s to %s. Specified ndays is %s', self.starttime, self.stoptime, self.ndays)
         if url is not None:
-            logger.debug('Current estimated ensemble %s, instance #s, and gridname #s', self.ensemble, self.instance_name, self.grid_name)
+            logger.debug('Current estimated ensemble %s, instance %s, and gridname %s', self.ensemble, self.instance_name, self.grid_name)
 
     def build_url_list_from_template_url_and_times(self, ensemble='nowcast')-> list:
         """

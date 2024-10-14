@@ -13,3 +13,15 @@ python geopoints_url.py  --url 'http://tdsres.apps.renci.org/thredds/dodsC/Datal
 
 # Transposed and chunked
 python geopoints_url.py  --url 'http://tdsres.apps.renci.org/thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc' --variable_name 'zeta' --lon -79.6725155674 --lat 32.8596518752
+
+# Additional examples
+
+# Some real-world examples
+# URL='http://tds.renci.org:80/thredds/dodsC/2023/al04/06/NCSC_SAB_v1.23/hatteras.renci.org/ncsc123-al04-sb55.01/nhcOfcl/fort63.nc'
+URL='https://apsviz-thredds-dev.apps.renci.org/thredds/dodsC/2023/al4/16/NCSC_SAB_v1.23/ht-ncfs.renci.org/ncsc123_nhc_al042023/ofcl/fort.63.nc'
+
+python geopoints_url.py  --url $URL  --variable_name 'zeta' --lon -79.6725155674 --lat 32.8596518752
+
+# Test building a series of URLs from a saingle input URL
+python generate_urls_from_times.py --url $URL --ndays -4
+
