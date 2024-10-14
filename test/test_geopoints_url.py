@@ -14,21 +14,6 @@ def test_geopoints_url():
         This tests the "geopoints url" functionality
 
     """
-    # example inputs
-
-    # --url "<TDS_SVR>thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc"
-    # --variable_name 'zeta' --lon -79.6725155674 --lat 32.8596518752
-
-    # --url '<TDS_SVR>thredds/dodsC/Datalayers/test/fort.63.nc' --variable_name 'zeta' --lon -79.6725155674 --lat 32.8596518752
-
-    # --url '<TDS_SVR>thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc' --variable_name 'zeta' --lon -79.6725155674
-    # --lat 32.8596518752
-
-    # --url '<TDS_SVR>thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc' --variable_name 'zeta' --lon -79.6725155674
-    # --lat 32.8596518752
-
-    # --url '<TDS_SVR>/thredds/catalog/2024/gfs/2024041712/NCSC_SAB_v1.23/ht-ncfs.renci.org/ncsc123_gfs_sb55.01/nowcast/catalog.html
-
     # get the URL of the TDS server
     tds_svr: str = os.getenv('TDS_SVR', None)
 
@@ -37,23 +22,19 @@ def test_geopoints_url():
 
     # create a list of test urls
     urls: list = [
-        # this test URL expects the TDS url to be from the dev namespace.
-        # tds_svr + "thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc",
-
-        # these test URLs expect the TDS url to be from the prod namespace.
+        # the test URL below is expected to point to the TDS-res in the prod namespace.
         # if running in k8s, the TDS service name can be used.
-        tds_svr + "thredds/dodsC/Datalayers/test/fort.63.nc",
-        tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc",
-        tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc"
+        tds_svr + "thredds/dodsC/2023/al4/16/NCSC_SAB_v1.23/ht-ncfs.renci.org/ncsc123_nhc_al042023/ofcl/fort.63.nc",
         ]
 
     # create a named tuple for the args to mimic the input
-    argsNT = namedtuple('argsNT', ['lon', 'lat', 'variable_name', 'kmax', 'alt_urlsource', 'url',  'keep_headers'])
+    argsNT = namedtuple('argsNT', ['lon', 'lat', 'variable_name', 'kmax', 'alt_urlsource', 'url',
+                                   'keep_headers', 'ndays', 'ensemble'])
 
     # for each test url
     for url in urls:
         # init the named tuple for the call
-        args = argsNT(-79.6725155674, 32.8596518752, 'zeta', 10, None, url, True)
+        args = argsNT(-79.6725155674, 32.8596518752, 'zeta', 10, None, url, True, -4, None)
 
         # call the function, check the return
         ret_val = gu.main(args)
