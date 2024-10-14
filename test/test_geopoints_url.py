@@ -30,7 +30,7 @@ def test_geopoints_url():
     # get the URL of the TDS server
     tds_svr: str = os.getenv('TDS_SVR', None)
 
-    # was there a TDS server URL declared
+    # abort if no TDS server URL env param is declared
     assert tds_svr is not None
 
     # create a list of test urls
