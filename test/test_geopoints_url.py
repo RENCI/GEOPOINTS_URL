@@ -34,7 +34,7 @@ def test_geopoints_url():
     # for each test url
     for url in urls:
         # init the named tuple for the call
-        args = argsNT(-79.6725155674, 32.8596518752, 'zeta', 10, None, url, True, -4, None)
+        args = argsNT(-79.6725155674, 32.8596518752, 'zeta', 10, None, url, True, 0, None)
 
         # call the function, check the return
         ret_val = gu.main(args)
