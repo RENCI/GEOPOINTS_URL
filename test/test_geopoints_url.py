@@ -4,6 +4,7 @@
     Authors: Dr. Jeff Tilson, Phil Owen @RENCI.org
 """
 
+import os
 import geopoints_url as gu
 from collections import namedtuple
 
@@ -15,23 +16,29 @@ def test_geopoints_url():
     """
     # example inputs
 
-    # --url "https://apsviz-thredds-dev.apps.renci.org/thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc"
+    # --url "<TDS_SVR>thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc"
     # --variable_name 'zeta' --lon -79.6725155674 --lat 32.8596518752
 
-    # --url 'https://tdsres.apps.renci.org/thredds/dodsC/Datalayers/test/fort.63.nc' --variable_name 'zeta' --lon -79.6725155674 --lat 32.8596518752
+    # --url '<TDS_SVR>thredds/dodsC/Datalayers/test/fort.63.nc' --variable_name 'zeta' --lon -79.6725155674 --lat 32.8596518752
 
-    # --url 'https://tdsres.apps.renci.org/thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc' --variable_name 'zeta' --lon -79.6725155674
+    # --url '<TDS_SVR>thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc' --variable_name 'zeta' --lon -79.6725155674
     # --lat 32.8596518752
 
-    # --url 'https://tdsres.apps.renci.org/thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc' --variable_name 'zeta' --lon -79.6725155674
+    # --url '<TDS_SVR>thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc' --variable_name 'zeta' --lon -79.6725155674
     # --lat 32.8596518752
+
+    # get the URL of the TDS server
+    tds_svr: str = os.getenv('TDS_SVR', None)
+
+    # was there a TDS server URL declared
+    assert tds_svr is not None
 
     # create a list of test urls
     urls: list = [
-        "https://apsviz-thredds-dev.apps.renci.org/thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc",
-        # "https://tdsres.apps.renci.org/thredds/dodsC/Datalayers/test/fort.63.nc",
-        # "https://tdsres.apps.renci.org/thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc",
-        # "https://tdsres.apps.renci.org/thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc"
+        tds_svr + "thredds/dodsC/2023/gfs/2023052300/wnat_53k_v1.0/sapelo2/adcirc_gfs_53k/gfsforecast/fort.63.nc",
+        # tds_svr + "thredds/dodsC/Datalayers/test/fort.63.nc",
+        # tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.nc",
+        # tds_svr + "thredds/dodsC/Datalayers/test/fort.63.d0.no-unlim.T.rc.nc"
         ]
 
     # create a named tuple for the args to mimic the input
