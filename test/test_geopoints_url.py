@@ -1,7 +1,7 @@
 """
     Test geopoints_url - Tests geopoints url functionality
 
-    Authors: Dr. Jeff Tilson, Phil Owen @RENCI.org
+    Authors: Jeffrey L. Tilson, Phil Owen @RENCI.org
 """
 
 import os
