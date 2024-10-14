@@ -19,7 +19,16 @@ from scipy import spatial as sp
 from datetime import date, datetime
 import time as tm
 
-#print("utilities:Xarray Version = {}".format(xr.__version__))
+# load the logger class
+from logger import LoggingUtil
+
+# get the log level and directory from the environment (or default).
+log_level, log_path = LoggingUtil.prep_for_logging()
+
+# create a logger
+logger = LoggingUtil.init_logging("utilities", level=log_level, line_format='medium', log_file_path=log_path)
+
+#logger.debug("utilities:Xarray Version: %s', xr.__version__)
 Kmax=10
 got_kdtree=None
 TOL=10e-5
@@ -29,11 +38,11 @@ debug=True # False
 Ymin=1979
 Ymax=2023
 YEARS=[item for item in range(Ymin, Ymax+1)]
-#print(f'utilities:Ymin, Ymax = {Ymin,Ymax}')
+#logger.debug('utilities:Ymin, Ymax: %s, %s', Ymin,Ymax)
 
 fileext='.d0.no-unlim.T.rc.nc'
 #fileext='.d4.no-unlim.T.rc.nc';
-#print(f'utilities:fileext = {fileext}')
+#logger.debug('utilities:fileext: %s', fileext)
 
 # Default standard location is on the primary RENCI TDS
 #urldirformat="http://tds.renci.org/thredds/dodsC/Reanalysis/ADCIRC/ERA5/hsofs/%d-post"
@@ -80,7 +89,7 @@ def attach_element_areas(agdict):
     c = np.sqrt(dx23*dx23 + dy23*dy23)
     
     agdict['areas'] = ( x1*dy23 + x2*dy31 + x3*dy12 )/2.
-    agdict['edge_lengths']=[a, b, c];
+    agdict['edge_lengths']=[a, b, c]
     agdict['dl']=np.mean(agdict['edge_lengths'],axis=0)
 
     return agdict
@@ -143,12 +152,12 @@ def get_adcirc_slice_from_ds(ds,v,it=0):
         var_d = var[:] # the actual data
     else:
         if ds.variables[v].dims[0] == 'node':
-            #print('ds: transposed data found')
+            #logger.debug('ds: transposed data found')
             var_d = var[it,:].T # the actual data
         elif ds.variables[v].dims[0] == 'time':
             var_d = var[:,it] # the actual data
         else:
-            print(f'Unexpected leading variable name {ds.variables[v].dims}: Abort')
+            logger.debug('Unexpected leading variable name: %s. Abort', ds.variables[v].dims)
             sys.exit(1)
     #var_d[var_d.mask] = np.nan
     advardict['var'] = var_d.data
@@ -168,7 +177,7 @@ def ComputeTree(agdict):
         y=agdict['lat'].values.ravel()
         e=agdict['ele'].values
     except Exception as e:
-        print('Did not find lon,lat,ele data in agdict.')
+        logger.debug('Did not find lon,lat,ele data in agdict.')
         sys.exit(1)
     xe=np.mean(x[e],axis=1)
     ye=np.mean(y[e],axis=1)
@@ -177,7 +186,7 @@ def ComputeTree(agdict):
         got_kdtree=tree
     else:
         agdict['tree']=got_kdtree
-    if debug: print(f'Build annual KDTree time is {tm.time()-t0}s')
+    logger.debug('Build annual KDTree time is: %s seconds', tm.time()-t0)
     return agdict
 
 def ComputeQuery(xylist, agdict, kmax=10):
@@ -200,7 +209,7 @@ def ComputeQuery(xylist, agdict, kmax=10):
     agresults['elements']=j
     agresults['number_neighbors']=kmax
     agresults['geopoints']=xylist # We shall use this later
-    if debug: print(f'KDTree query of size {kmax} took {tm.time()-t0}s')
+    logger.debug('KDTree query of size: %s took: %s seconds', kmax, tm.time()-t0)
     return agresults
 
 def ComputeBasisRepresentation(xylist, agdict, agresults):
@@ -240,7 +249,7 @@ def ComputeBasisRepresentation(xylist, agdict, agresults):
     agresults['final_weights']=final_weights
     agresults['final_jvals']=final_jvals
     agresults['final_status']=final_status
-    if debug: print(f'Compute of basis took {tm.time()-t0}s')
+    logger.debug('Compute of basis took: %s seconds', tm.time()-t0)
     # Keep the list if the user needs to know after the fact
     outside_elements = np.argwhere(np.isnan(final_weights).all(axis=1)).ravel()
     agresults['outside_elements']=outside_elements
@@ -258,7 +267,7 @@ def detailed_weights_elements(phival_list, j):
         df = pd.concat([df_pvals,df_jvals],axis=1)
         df.index = df.index+1
         df.index = df.index.astype(int)
-        print(df.loc[2].to_frame().T)
+        logger.debug('Dataframe: %s', df.loc[2].to_frame().T)
 
 def WaterLevelReductions(t, data_list, final_weights):
     """
@@ -303,9 +312,9 @@ def ConstructReducedWaterLevelData_from_ds(ds, agdict, agresults, variable_name=
     """
     
     if variable_name is None:
-        print('User MUST supply the correct variable name')
+        logger.error('User MUST supply the correct variable name')
         sys.exit(1)
-    if debug: print(f'Variable name is {variable_name}')
+    logger.debug('Variable name is: %s', variable_name)
     t0 = tm.time()
     data_list=list()
     final_weights = agresults['final_weights']
@@ -315,20 +324,20 @@ def ConstructReducedWaterLevelData_from_ds(ds, agdict, agresults, variable_name=
     t=acdict['time'].values
     e = agdict['ele'].values
 
-    print(f'Before removal of out-of-triangle jvals: {final_jvals.shape}')
+    logger.debug('Before removal of out-of-triangle jvals: %s', final_jvals.shape)
     mask =(final_jvals == -99999)
     final_jvals=final_jvals[~mask]
-    print(f'After removal of out-of-triangle jvals: {final_jvals.shape}')
+    logger.debug(f'After removal of out-of-triangle jvals: %s', final_jvals.shape)
     
     for vstation in final_jvals:
         advardict = get_adcirc_slice_from_ds(ds,variable_name,it=e[vstation])
         df = pd.DataFrame(advardict['var'])
         data_list.append(df)
-    if debug: print(f'Time to fetch annual all test station (triplets) was {tm.time()-t0}s')
+    logger.debug('Time to fetch annual all test station (triplets) was: %s seconds', tm.time()-t0)
     df_final=WaterLevelReductions(t, data_list, final_weights)
     t0=tm.time()
     df_meta=GenerateMetadata(agresults) # This is here mostly for future considerations
-    if debug: print(f'Time to reduce annual {len(final_jvals)} test stations is {tm.time()-t0}s')
+    logger.debug('Time to reduce annual: %s, test stations is: %s seconds', len(final_jvals), tm.time()-t0)
     agresults['final_reduced_data']=df_final
     agresults['final_meta_data']=df_meta
     
@@ -349,22 +358,21 @@ def Combined_pipeline(url, variable_name, lon, lat, nearest_neighbors=10):
     ds = f63_to_xr(url)
     agdict=get_adcirc_grid_from_ds(ds)
     agdict=attach_element_areas(agdict)
-    if debug: print(f'Compute_pipeline initiation {tm.time()-t0}')
+    logger.debug('Compute_pipeline initiation: %s seconds', tm.time()-t0)
 
-    if debug: print('Start annual KDTree pipeline')
-    print(f' LON {geopoints[0][0]} LAT {geopoints[0][1]}')
+    logger.debug('Start annual KDTree pipeline LON: %s LAT: %s', geopoints[0][0], geopoints[0][1])
     agdict=ComputeTree(agdict)
     agresults=ComputeQuery(geopoints, agdict, kmax=nearest_neighbors)
     agresults=ComputeBasisRepresentation(geopoints, agdict, agresults)
     agresults=ConstructReducedWaterLevelData_from_ds(ds, agdict, agresults, variable_name=variable_name)
 
-    if debug: print(f'Basis function Tolerance value is {TOL}')
-    if debug: print(f'List of {len(agresults["outside_elements"])} stations not assigned to any grid element follows for kmax {nearest_neighbors}')
+    logger.debug('Basis function Tolerance value is: %s', TOL)
+    logger.debug('List of %s stations not assigned to any grid element follows for kmax: %s', len(agresults["outside_elements"]), nearest_neighbors)
     t0=tm.time()
     df_product_data=agresults['final_reduced_data']
     df_product_metadata=agresults['final_meta_data']
     df_excluded_geopoints=pd.DataFrame(geopoints[agresults['outside_elements']], index=agresults['outside_elements']+1, columns=['lon','lat'])
-    if debug: print(f'Compute_pipeline cleanup {tm.time()-t0}')
-    if debug: print('Finished annual Combined_pipeline')
+    logger.debug('Compute_pipeline cleanup: %s seconds', tm.time()-t0)
+    logger.debug('Finished annual Combined_pipeline')
     
     return df_product_data, df_product_metadata, df_excluded_geopoints
