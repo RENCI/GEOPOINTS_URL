@@ -400,7 +400,7 @@ class generate_urls_from_times(object):
         self.ndays=ndays
         logger.debug('Current time (or advisory) range is %s to %s. Specified ndays is %s', self.starttime, self.stoptime, self.ndays)
         if url is not None:
-            logger.debug('Current estimated ensemble %s, instance %s, and gridname %s', self.ensemble, self.instance_name, self.grid_name)
+            logger.debug('Current estimated ensemble: %s, instance: %s and gridname: %s', self.ensemble, self.instance_name, self.grid_name)
 
     def build_url_list_from_template_url_and_times(self, ensemble='nowcast')-> list:
         """
@@ -603,7 +603,7 @@ def main(args):
                 instance_name=args.instance_name, config_name=args.config_name, hurricane_yaml_year=args.hurricane_yaml_year,hurricane_yaml_source=args.hurricane_yaml_source)
             new_urls = rpl.build_url_list_from_yaml_and_times(ensemble=args.ensemble)
 
-    logger.debug(new_urls)
+    logger.debug('New urls: %s', new_urls)
 
 
 if __name__ == '__main__':

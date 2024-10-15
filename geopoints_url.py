@@ -73,7 +73,7 @@ def grab_first_url_from_urllist(urls)->str:
         url: <str> . Fetch first available, valid url in the list
     """
     if not isinstance(urls, list):
-        logger.debug('first url: URLs must be in list form')
+        logger.error('first url: URLs must be in list form')
         sys.exit(1)
     url = first_true(urls)
     return url
@@ -96,23 +96,23 @@ def main(args):
         logger.info(f'Build list of URLs to fetch: ndays lookback is {ndays}')
         rpl = genurls.generate_urls_from_times(url=url,timein=None, timeout=None, ndays=ndays, grid_name=None, instance_name=None, config_name=None)
         new_urls = rpl.build_url_list_from_template_url_and_offset(ensemble=ensemble)
-        logger.debug(f'New URL list {new_urls}')
+        logger.debug('New URL list %s', new_urls)
     else:
         new_urls=[url]
-    logger.info(f'Number of URL to try and process is {len(new_urls)}')
+    logger.info('Number of URL to try and process is: %s', len(new_urls))
 
     logger.debug('Lon: %s, Lat: %s', lon, lat)
-    logger.debug(f'Selected nearest neighbors values is {nearest_neighbors}')
+    logger.debug('Selected nearest neighbors values is: %s', nearest_neighbors)
 
     if len(new_urls) ==0:
-        logger.exit(f'No URLs identified given the input URL. Abort: {url}')
+        logger.exit('No URLs identified given the input URL: %s. Abort', url)
 
     data_list=list()
     exclude_list=list()
 
     t0=tm.time()
     for url in new_urls:
-        logger.debug(f' URL {url}')
+        logger.debug('URL: %s', url)
         try:
             df_product_data, df_product_metadata, df_excluded = utilities.Combined_pipeline(url, variable_name, lon, lat, nearest_neighbors)
             df_product_data.to_csv(f'Product_data.csv',header=args.keep_headers)
@@ -120,9 +120,9 @@ def main(args):
             data_list.append(df_product_data)
             exclude_list.append(df_excluded)
         except (OSError,FileNotFoundError):
-            logger.debug(f' Current URL was not found {url}. Try another')
+            logger.warning('Current URL was not found: %s. Try another...', url)
             pass
-    logger.info(f'Fetching Runtime was {tm.time()-t0}')
+    logger.info('Fetching Runtime was: %s seconds', tm.time()-t0)
 
     df=pd.concat(data_list,axis=0)
     df = (df.reset_index()
@@ -130,14 +130,14 @@ def main(args):
         .set_index('index').sort_index())
     df_excluded=pd.concat(exclude_list,axis=0)
 
-    logger.debug(f'Dimension of final data array: {df.shape}')
-    logger.debug(f'Dimension of excluded URL list array: {df_excluded.shape}')
+    logger.debug('Dimension of final data array: %s', df.shape)
+    logger.debug('Dimension of excluded URL list array: %s', df_excluded.shape)
 
     # Final data outputs
-    df.to_csv(f'Product_data_geopoints.csv')
-    df_excluded.to_csv(f'Product_excluded_geopoints.csv')
+    df.to_csv('Product_data_geopoints.csv')
+    df_excluded.to_csv('Product_excluded_geopoints.csv')
     
-    logger.debug('Finished. Runtime was: %s', tm.time()-t0)
+    logger.debug('Finished. Runtime was: %s seconds', tm.time()-t0)
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
