@@ -103,10 +103,20 @@ def main(args):
     logger.info(f' Identified variable name is {variable_name}')
 
     ensemble=strip_ensemble_from_url([url])
-
     if args.ensemble is not None: # Else use the ensemble present in the input URL. Allow us to input a forecast but choose the nowcast
         ensemble = args.ensemble
     logger.info(f'Input URL ensemble determined to be {ensemble}')
+
+    # Try to setup proper header names for ADC/SWN and for nowcast/forecasr
+    dataproduct='Forecast'
+    if ensemble=='nowcast':
+        dataproduct='Nowcast'
+    # Now figure out data source: adcirc or swan
+    datasrc='APS'
+    if variable_name=='swan_HS':
+        datasrc='SWAN'
+    headername=f'{datasrc} {dataproduct}'
+    logger.info(f' Header name defined to be {headername}')
 
     if ndays <= 0:
         logger.info(f'Build list of URLs to fetch: ndays lookback is {ndays}')
@@ -141,10 +151,16 @@ def main(args):
     logger.info('Fetching Runtime was: %s seconds', tm.time()-t0)
 
     df=pd.concat(data_list,axis=0)
+    df.columns=[headername]
     df = (df.reset_index()
         .drop_duplicates(subset='index', keep='last')
         .set_index('index').sort_index())
     df_excluded=pd.concat(exclude_list,axis=0)
+
+    df.index = df.index.strftime('%Y-%m-%d %H:%M:%S')
+    df.index.name='time'
+
+    print(df)
 
     logger.debug('Dimension of final data array: %s', df.shape)
     logger.debug('Dimension of excluded URL list array: %s', df_excluded.shape)
@@ -173,7 +189,7 @@ if __name__ == '__main__':
     parser.add_argument('--keep_headers', action='store_true', default=True,
                         help='Boolean: Indicates to add header names to output files')
     parser.add_argument('--ensemble', action='store', dest='ensemble', default=None, type=str,
-                        help='Choose overriding ensembe such as nowcast. Else internal code extracts from the URL')
+                        help='Choose overriding ensemble such as nowcast. Else internal code extracts from the URL')
     parser.add_argument('--ndays', action='store', dest='ndays', default=0, type=int,
                         help='ndays to scan: Default=0, <0 means look back. >0 means look forward')
     args = parser.parse_args()
