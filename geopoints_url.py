@@ -169,12 +169,11 @@ def main(args):
     logger.debug('Dimension of excluded URL list array: %s', df_excluded.shape)
 
     # Final data outputs
-    df.to_csv('Product_data_geopoints.csv')
-    df_excluded.to_csv('Product_excluded_geopoints.csv')
-
-    return df,df_excluded
+    # df.to_csv('Product_data_geopoints.csv')
+    # df_excluded.to_csv('Product_excluded_geopoints.csv')
     
-    logger.debug('Finished. Runtime was: %s seconds', tm.time()-t0)
+    logger.info('Finished. Runtime was: %s seconds', tm.time()-t0)
+    return df
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
