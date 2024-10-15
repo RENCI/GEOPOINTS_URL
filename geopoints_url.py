@@ -30,8 +30,13 @@ var_mapper={'fort':'zeta','swan':'swan_HS'}
 
 def guess_variable_name(url)->str:
     """
-    Simply search the given URL for occunces of either fort or swan. Choose the variable approapriately. User may always
-    override asing --variable_name
+    Simply search the given URL for occurances of ither fort or swan. Choose the variable approapriately. User may always
+    override using --variable_name
+
+    Parameters:
+        url: (str). A valid urls
+    Returns:
+        varname: <str>. Guess is varname is zeta or swan_HS based on url nomenclature and specifications in the var_mapper dict
     """
     varname=None
     for key,value in var_mapper.items():
@@ -42,7 +47,7 @@ def guess_variable_name(url)->str:
 
 def strip_ensemble_from_url(urls)->str:
     """
-    We mandate that the URLs input to this fetcher are those used to access the TDS data. The "ensemble" information will be in position .split('/')[-2]
+    We mandate that the URLs input to this fetcher are those used to access the TDS server used in APSViz. The "ensemble" information will be in position .split('/')[-2]
     eg. 'http://tds.renci.org/thredds/dodsC/2021/nam/2021052318/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.63.nc'
     
     Parameters:
@@ -160,14 +165,14 @@ def main(args):
     df.index = df.index.strftime('%Y-%m-%d %H:%M:%S')
     df.index.name='time'
 
-    print(df)
-
     logger.debug('Dimension of final data array: %s', df.shape)
     logger.debug('Dimension of excluded URL list array: %s', df_excluded.shape)
 
     # Final data outputs
     df.to_csv('Product_data_geopoints.csv')
     df_excluded.to_csv('Product_excluded_geopoints.csv')
+
+    return df,df_excluded
     
     logger.debug('Finished. Runtime was: %s seconds', tm.time()-t0)
 
