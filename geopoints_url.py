@@ -146,8 +146,8 @@ def main(args):
         logger.debug('URL: %s', url)
         try:
             df_product_data, df_product_metadata, df_excluded = utilities.Combined_pipeline(url, variable_name, lon, lat, nearest_neighbors)
-            df_product_data.to_csv(f'Product_data.csv',header=args.keep_headers)
-            df_product_metadata.to_csv(f'Product_meta.csv',header=args.keep_headers)
+            #df_product_data.to_csv(f'Product_data.csv',header=args.keep_headers)
+            #df_product_metadata.to_csv(f'Product_meta.csv',header=args.keep_headers)
             data_list.append(df_product_data)
             exclude_list.append(df_excluded)
         except (OSError,FileNotFoundError):
