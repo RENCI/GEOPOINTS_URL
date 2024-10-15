@@ -26,7 +26,7 @@ from logger import LoggingUtil
 log_level, log_path = LoggingUtil.prep_for_logging()
 
 # create a logger
-logger = LoggingUtil.init_logging("utilities", level=log_level, line_format='medium', log_file_path=log_path)
+logger = LoggingUtil.init_logging("geopoints_url", level=log_level, line_format='long', log_file_path=log_path)
 
 #logger.debug("utilities:Xarray Version: %s', xr.__version__)
 Kmax=10
