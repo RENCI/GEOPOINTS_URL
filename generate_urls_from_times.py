@@ -21,14 +21,8 @@ import datetime as dt
 import utilities as utilities
 from argparse import ArgumentParser
 
-# load the logger class
-from logger import LoggingUtil
-
-# get the log level and directory from the environment (or default).
-log_level, log_path = LoggingUtil.prep_for_logging()
-
 # create a logger
-logger = LoggingUtil.init_logging("generate_urls_from_times", level=log_level, line_format='medium', log_file_path=log_path)
+logger = utilities.logger
 
 
 def is_hurricane(test_val)->bool:
