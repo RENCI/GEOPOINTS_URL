@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: test-geopoint
+  name: test-geopoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-geopoint
+  template:
+    metadata:
+      labels:
+        app: test-geopoint
+    spec:
+      containers:
+      - name: test
+        image: containers.renci.org/eds/geopoints-test-url:latest
+        imagePullPolicy: Always
+
+        command: ['/bin/sh']
+        args: ['-c', 'sleep infinity']
+
+        # to run a test
+        # export PYTHONPATH=./
+        # pytest ./test/test_geopoints_url.py
+        # rm /data/logs/geopoints_url.log
+        # cat /data/logs/geopoints_url.log
+        # tail -f /data/logs/geopoints_url.log
+
+        volumeMounts:
+        - name: test-pvc-vol
+          mountPath: "/data"
+
+        resources:
+          limits:
+            memory: 5Gi
+            ephemeral-storage: 256Mi
+          requests:
+            memory: 256Mi
+            ephemeral-storage: 50Mi
+            cpu: 1000m
+
+        env:
+        - name: LOG_LEVEL
+          value: "10"
+        - name: LOG_PATH
+          value: "/data/logs"
+        - name: TDS_SVR
+#          value: "http://apsviz-thredds-res/"
+          value: "https://apsviz-thredds-dev.apps.renci.org/"
+        - name: PYTHONPATH
+          value: "/test/geopoints.url"
+
+      volumes:
+        - name: test-pvc-vol
+          persistentVolumeClaim:
+            claimName: eds-pvc
