@@ -1,2 +1,7 @@
 /generate_urls_from_times.log
 /geopoints_url.log
+/utilities.log
+/Product_data.csv
+/Product_data_geopoints.csv
+/Product_excluded_geopoints.csv
+/Product_meta.csv
