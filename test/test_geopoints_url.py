@@ -15,27 +15,29 @@ def test_geopoints_url():
 
     """
     # get the URL of the TDS server
-    tds_svr: str = os.getenv('TDS_SVR', None)
+    tds_svr: str = os.getenv('TDS_SVR', 'https://apsviz-thredds-dev.apps.renci.org/')
 
     # abort if no TDS server URL env param is declared
     assert tds_svr is not None
 
-    # create a list of test urls
-    urls: list = [
-            # the test URL below is expected to point to the TDS-res in the prod namespace.
-            # if running in k8s, the TDS service name can be used.
-            # tds_svr + 'thredds/dodsC/Datalayers/test/fort.63.nc'
+    # open the file of test URLs
+    try:
+        # get the test data for now
+        with open(os.path.join(os.path.dirname(__file__), 'url-list.txt'), 'r') as fh:
+            # read in the whole file, split it into lines (URLs)
+            urls = fh.read().splitlines()
+    except FileNotFoundError:
+        assert not 'File not found.'
 
-            # the dev TDS server should be used for this endpoint
-            tds_svr + "thredds/dodsC/2023/al4/16/NCSC_SAB_v1.23/ht-ncfs.renci.org/ncsc123_nhc_al042023/ofcl/fort.63.nc",
-        ]
-
-    # create a named tuple for the args to mimic the input
-    argsNT = namedtuple('argsNT', ['lon', 'lat', 'variable_name', 'kmax', 'alt_urlsource', 'url',
+    # create a named tuple for the args to mimic the cli input
+    argsNT: namedtuple = namedtuple('argsNT', ['lon', 'lat', 'variable_name', 'kmax', 'alt_urlsource', 'url',
                                    'keep_headers', 'ensemble', 'ndays'])
 
     # for each test url
     for url in urls:
+        # if the URL starts with <TDS_SVR> replace it with the tds_svr env parameter gathered above
+        url = url.replace('<TDS_SVR>', tds_svr)
+
         # init the named tuple for the call
         args = argsNT(-79.6725155674, 32.8596518752, 'zeta', 10, None, url, True, None, 0)
 
