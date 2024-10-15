@@ -25,6 +25,20 @@ import generate_urls_from_times as genurls
 # create a logger
 logger = utilities.logger
 
+# Define some basic mappings for URL to variables names. Can override using CI variables
+var_mapper={'fort':'zeta','swan':'swan_HS'}
+
+def guess_variable_name(url)->str:
+    """
+    Simply search the given URL for occunces of either fort or swan. Choose the variable approapriately. User may always
+    override asing --variable_name
+    """
+    varname=None
+    for key,value in var_mapper.items():
+        if isinstance(key, str) and key.casefold() in url.casefold():
+            varname=value
+            break
+    return varname
 
 def strip_ensemble_from_url(urls)->str:
     """
@@ -80,6 +94,13 @@ def main(args):
     lat=args.lat
     nearest_neighbors=args.kmax
     ndays=args.ndays # Look back/forward 
+
+    if variable_name is None:
+        variable_name=guess_variable_name(url)
+    if variable_name is None:
+        logger.error('Variable name invald or not identified')
+        sys.exit(1)
+    logger.info(f' Identified variable name is {variable_name}')
 
     ensemble=strip_ensemble_from_url([url])
 
@@ -141,8 +162,8 @@ if __name__ == '__main__':
                         help='lon: longitiude value for time series extraction')
     parser.add_argument('--lat', action='store', dest='lat', default=None, type=float,
                         help='lat: latitude value for time series extraction')
-    parser.add_argument('--variable_name', action='store', dest='variable_name', default='zeta', type=str,
-                        help='Variable name of interest from the supplied url')
+    parser.add_argument('--variable_name', action='store', dest='variable_name', default=None, type=str,
+                        help='Optional variable name of interest from the supplied url')
     parser.add_argument('--kmax', action='store', dest='kmax', default=10, type=int,
                         help='nearest_neighbors values when performing the Query')
     parser.add_argument('--alt_urlsource', action='store', dest='alt_urlsource', default=None, type=str,
