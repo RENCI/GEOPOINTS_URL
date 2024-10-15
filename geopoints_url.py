@@ -21,6 +21,7 @@ import numpy as np
 import time as tm
 import utilities as utilities
 import generate_urls_from_times as genurls
+from argparse import ArgumentParser
 
 # create a logger
 logger = utilities.logger
@@ -176,29 +177,41 @@ def main(args):
     return df
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
-    parser = ArgumentParser()
-    parser.add_argument('--lon', action='store', dest='lon', default=None, type=float,
-                        help='lon: longitiude value for time series extraction')
-    parser.add_argument('--lat', action='store', dest='lat', default=None, type=float,
-                        help='lat: latitude value for time series extraction')
-    parser.add_argument('--variable_name', action='store', dest='variable_name', default=None, type=str,
-                        help='Optional variable name of interest from the supplied url')
-    parser.add_argument('--kmax', action='store', dest='kmax', default=10, type=int,
-                        help='nearest_neighbors values when performing the Query')
-    parser.add_argument('--alt_urlsource', action='store', dest='alt_urlsource', default=None, type=str,
-                        help='Alternative location for the ADCIRC data - NOTE specific formatting requirements exist')
-    parser.add_argument('--url', action='store', dest='url', default=None, type=str,
-                        help='Specify FQ URL')
-    parser.add_argument('--keep_headers', action='store_true', default=True,
-                        help='Boolean: Indicates to add header names to output files')
-    parser.add_argument('--ensemble', action='store', dest='ensemble', default=None, type=str,
-                        help='Choose overriding ensemble such as nowcast. Else internal code extracts from the URL')
-    parser.add_argument('--ndays', action='store', dest='ndays', default=0, type=int,
-                        help='ndays to scan: Default=0, <0 means look back. >0 means look forward')
-    args = parser.parse_args()
+    ret_val=0
 
-    # log the input args
-    logger.debug('input args: %s', args)
+    try:
+        parser = ArgumentParser()
+        parser.add_argument('--lon', action='store', dest='lon', default=None, type=float,
+       	                   help='lon: longitiude value for time series extraction')
+        parser.add_argument('--lat', action='store', dest='lat', default=None, type=float,
+                           help='lat: latitude value for time series extraction')
+        parser.add_argument('--variable_name', action='store', dest='variable_name', default=None, type=str,
+                           help='Optional variable name of interest from the supplied url')
+        parser.add_argument('--kmax', action='store', dest='kmax', default=10, type=int,
+                           help='nearest_neighbors values when performing the Query')
+        parser.add_argument('--alt_urlsource', action='store', dest='alt_urlsource', default=None, type=str,
+                           help='Alternative location for the ADCIRC data - NOTE specific formatting requirements exist')
+        parser.add_argument('--url', action='store', dest='url', default=None, type=str,
+                           help='Specify FQ URL')
+        parser.add_argument('--keep_headers', action='store_true', default=True,
+                           help='Boolean: Indicates to add header names to output files')
+        parser.add_argument('--ensemble', action='store', dest='ensemble', default=None, type=str,
+                           help='Choose overriding ensemble such as nowcast. Else internal code extracts from the URL')
+        parser.add_argument('--ndays', action='store', dest='ndays', default=0, type=int,
+                           help='ndays to scan: Default=0, <0 means look back. >0 means look forward')
+        args = parser.parse_args()
 
-    sys.exit(main(args))
+    	# log the input args
+        logger.debug('input args: %s',args)
+
+        # Call the runner
+        df = main(args)
+
+        logger.debug('Final output df:%s:%s',df.head(),df.shape)
+
+    except Exception:
+        logger.exception("Exit: exception occured")
+        ret_val=1
+
+    sys.exit(ret_val)
+
