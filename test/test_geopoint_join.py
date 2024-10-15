@@ -41,3 +41,6 @@ def test_geo_point_merge():
 
     # dump results of the join
     print(df_join.head())
+
+    # output the data in a CSV file
+    df_join.to_csv(os.path.join(os.path.dirname(__file__), 'nc_fc_joined.csv'))
