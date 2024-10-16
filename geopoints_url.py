@@ -137,7 +137,8 @@ def main(args):
     logger.debug('Selected nearest neighbors values is: %s', nearest_neighbors)
 
     if len(new_urls) ==0:
-        logger.exit('No URLs identified given the input URL: %s. Abort', url)
+        logger.error('No URLs identified given the input URL: %s. Abort', url)
+         sys.exit(1)
 
     data_list=list()
     exclude_list=list()
