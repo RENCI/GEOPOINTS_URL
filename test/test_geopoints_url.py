@@ -5,8 +5,8 @@
 """
 
 import os
-import geopoints_url as gu
 from collections import namedtuple
+import geopoints_url as gu
 
 
 def test_geopoints_url():
@@ -23,7 +23,7 @@ def test_geopoints_url():
     # open the file of test URLs
     try:
         # get the test data for now
-        with open(os.path.join(os.path.dirname(__file__), 'url-list.txt'), 'r') as fh:
+        with open(os.path.join(os.path.dirname(__file__), 'url-list.txt'), mode='r', encoding="utf-8") as fh:
             # read in the whole file, split it into lines (URLs)
             urls = fh.read().splitlines()
     except FileNotFoundError:
@@ -35,14 +35,36 @@ def test_geopoints_url():
 
     # for each test url
     for url in urls:
+        # if the line is commented out
+        if url.startswith('#'):
+            # skip it
+            continue
+
         # if the URL starts with <TDS_SVR> replace it with the tds_svr env parameter gathered above
         url = url.replace('<TDS_SVR>', tds_svr)
 
-        # init the named tuple for the call
-        args = argsNT(-79.6725155674, 32.8596518752, 'zeta', 10, None, url, True, None, 0)
+        # init the named tuple for the nowcast call
+        args = argsNT(-79.6725155674, 32.8596518752, None, 10, None, url, True, 'nowcast', 0)
 
-        # call the function, check the return
-        ret_val = gu.main(args)
+        # call the function
+        df_nc = gu.main(args)
+
+        # check the return
+        assert df_nc is not None
+
+        # init the named tuple for the forecast call
+        args = argsNT(-79.6725155674, 32.8596518752, None, 10, None, url, True, None, 0)
+
+        # call the function,
+        df_fc = gu.main(args)
+
+        # check the return
+        assert df_fc is not None
+
+        # join the results
+        ret_val = df_nc.join(df_fc, how='outer')
+
+        print(ret_val)
 
         # assert any errors
-        assert ret_val is None
+        assert ret_val is not None

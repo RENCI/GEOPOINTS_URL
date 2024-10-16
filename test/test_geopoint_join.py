@@ -13,7 +13,6 @@
 """
 import os
 import pandas as pd
-import pytest
 
 
 def test_geo_point_merge():
