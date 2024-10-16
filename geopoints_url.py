@@ -138,7 +138,7 @@ def main(args):
 
     if len(new_urls) ==0:
         logger.error('No URLs identified given the input URL: %s. Abort', url)
-         sys.exit(1)
+        sys.exit(1)
 
     data_list=list()
     exclude_list=list()
