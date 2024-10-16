@@ -23,7 +23,7 @@ def test_geopoints_url():
     # open the file of test URLs
     try:
         # get the test data for now
-        with open(os.path.join(os.path.dirname(__file__), 'url-list.txt'), 'r') as fh:
+        with open(os.path.join(os.path.dirname(__file__), 'url-list.txt'), mode='r', encoding="utf-8") as fh:
             # read in the whole file, split it into lines (URLs)
             urls = fh.read().splitlines()
     except FileNotFoundError:
