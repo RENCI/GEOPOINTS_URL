@@ -319,24 +319,30 @@ def ConstructReducedWaterLevelData_from_ds(ds, agdict, agresults, variable_name=
         sys.exit(1)
     logger.debug('Variable name is: %s', variable_name)
     t0 = tm.time()
+
     data_list=list()
+    t1=tm.time()
     final_weights = agresults['final_weights']
     final_jvals = agresults['final_jvals']
+    logger.debug('Time to acquire weigths and jvals: %s',tm.time()-t1)
 
+    t1=tm.time()
     acdict=get_adcirc_time_from_ds(ds)
     t=acdict['time'].values
     e = agdict['ele'].values
+    logger.debug('Time to acquire time and element values: %s', tm.time()-t1)
 
     logger.debug('Before removal of out-of-triangle jvals: %s', final_jvals.shape)
     mask =(final_jvals == -99999)
     final_jvals=final_jvals[~mask]
     logger.debug(f'After removal of out-of-triangle jvals: %s', final_jvals.shape)
     
+    t1=tm.time()
     for vstation in final_jvals:
         advardict = get_adcirc_slice_from_ds(ds,variable_name,it=e[vstation])
         df = pd.DataFrame(advardict['var'])
         data_list.append(df)
-    logger.debug('Time to fetch annual all test station (triplets) was: %s seconds', tm.time()-t0)
+    logger.debug('Time to TDS fetch annual all test station (triplets) was: %s seconds', tm.time()-t1)
     df_final=WaterLevelReductions(t, data_list, final_weights)
     t0=tm.time()
     df_meta=GenerateMetadata(agresults) # This is here mostly for future considerations
