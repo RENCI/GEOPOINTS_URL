@@ -289,6 +289,37 @@ def WaterLevelReductions(t, data_list, final_weights):
         df_final_data=None
     return df_final_data
 
+def WaterLevelSelection(t, data_list, final_weights):
+    """
+    Each data_list is a df for a single point containing 3 columns, one for 
+    each node in the containing element. 
+    We choose the first column in the list that has any number of values. Moving forward
+    one can make this approach better by chosing the heighest weighted object with 
+    actual values
+    
+    A final df is returned with index=time and a single column for each of the
+    input test points (some of which may be partially or completely nan)
+    """
+    final_list = list()
+    ## Index is a loop over multiple possible lon/lat pairs
+    for index,dataseries,weights in zip(range(0,len(data_list)), data_list,final_weights):
+        df_single=pd.DataFrame(index=t)
+        count=0
+        for vertex in dataseries.columns: # Loop over the 3 vertices and their weights in order
+            count +=1
+            df_single[f'P{vertex}']=dataseries[vertex].values
+            if df_single.count()[0] > 0 : # df.notna().sum() 
+                final_list.append(df_single)
+                logger.info('Inserted one chosen df_single with non nan values for index  %s at count number %s', index,count)
+                break
+    logger.debug('Do Selection water series update')
+    try:
+        df_final_data = pd.concat(final_list, axis=1)
+    except Exception as e:
+        df_final_data=None
+        logger.debug(f'This Exception usually simply means no data at the chosen lon/lat. But Exception is {e}')
+    return df_final_data
+
 def GenerateMetadata(agresults):
     """
     Here we want to simply assist the user by reporting back the lon/lat values for each geopoint.
@@ -343,7 +374,13 @@ def ConstructReducedWaterLevelData_from_ds(ds, agdict, agresults, variable_name=
         df = pd.DataFrame(advardict['var'])
         data_list.append(df)
     logger.debug('Time to TDS fetch annual all test station (triplets) was: %s seconds', tm.time()-t1)
-    df_final=WaterLevelReductions(t, data_list, final_weights)
+
+    #logger.info('Selecting the weighted mean time series')
+    #df_final=WaterLevelReductions(t, data_list, final_weights)
+
+    logger.info('Selecting the greedy alg: first in list with not all nans time series')
+    df_final=WaterLevelSelection(t, data_list, final_weights)
+
     t0=tm.time()
     df_meta=GenerateMetadata(agresults) # This is here mostly for future considerations
     logger.debug('Time to reduce annual: %s, test stations is: %s seconds', len(final_jvals), tm.time()-t0)
