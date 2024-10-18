@@ -100,6 +100,8 @@ def main(args):
     lat=args.lat
     nearest_neighbors=args.kmax
     ndays=args.ndays # Look back/forward 
+    
+    logger.info('Input URL word is %s',url)
 
     if variable_name is None:
         variable_name=guess_variable_name(url)
