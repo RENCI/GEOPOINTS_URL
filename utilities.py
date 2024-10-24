@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 '''
 
 """
-    Time series extration
+    Time series extraction
 
     Authors: Jeffrey L. Tilson, Brian O. Blanton 8/2024
 """

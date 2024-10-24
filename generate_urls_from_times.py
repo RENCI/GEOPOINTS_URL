@@ -14,7 +14,7 @@
 # 
 
 """
-    Time series extration
+    Time series extraction
 
     Authors: Jeffrey L. Tilson
 """
