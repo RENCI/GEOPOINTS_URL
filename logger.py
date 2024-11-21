@@ -22,18 +22,6 @@ class LoggingUtil:
         Creates and configures a logger
     """
     @staticmethod
-    def get_log_path() -> str:
-        """
-        gets the log path
-
-        :return:
-        """
-        log_path: str = os.getenv('LOG_PATH', os.path.dirname(__file__))
-
-        # return the log path
-        return log_path
-
-    @staticmethod
     def init_logging(name, level=logging.INFO, line_format='short', log_file_path=None):
         """
             Logging utility controlling format and setting initial logging level
@@ -69,8 +57,8 @@ class LoggingUtil:
 
         # if there was a file path passed in use it
         if log_file_path is not None:
-            # create a rotating file handler, 10mb max per file with a max number of 10 files
-            file_handler = RotatingFileHandler(filename=str(os.path.join(log_file_path, name + '.log')), maxBytes=100000, backupCount=10)
+            # create a rotating file handler, 1mb max per file with a max number of 10 files
+            file_handler = RotatingFileHandler(filename=str(os.path.join(log_file_path, name + '.log')), maxBytes=1000000, backupCount=10)
 
             # set the formatter
             file_handler.setFormatter(formatter)
