@@ -23,9 +23,9 @@ import sys
 import time as tm
 import pandas as pd
 
-from src.common.geopoints_urls_from_times import GenerateURLsFromTimes
-from src.common.geopoints_utilities import GeoUtilities
-from src.common.logger import LoggingUtil
+from geopoints_urls_from_times import GenerateURLsFromTimes
+from geopoints_utilities import GeoUtilities
+from logger import LoggingUtil
 
 
 class GeoPointsURL:
@@ -46,7 +46,7 @@ class GeoPointsURL:
             log_level, log_path = LoggingUtil.prep_for_logging()
 
             # create a logger
-            self.logger = LoggingUtil.init_logging(app_name, level=log_level, line_format='medium', log_file_path=log_path)
+            self.logger = LoggingUtil.init_logging(app_name, level=log_level, line_format='medium')
 
         # Define some basic mappings for URL to variables names. Can override using CI variables
         self.var_mapper = {'fort': 'zeta', 'swan': 'swan_HS'}
@@ -251,7 +251,7 @@ if __name__ == '__main__':
     RET_VAL = 0
 
     # setup a logger for testing
-    logger = LoggingUtil.init_logging("GeoPointsURL.test", level=10, line_format='medium', log_file_path='./geopoints_url-test.log')
+    logger = LoggingUtil.init_logging("GeoPointsURL.test", level=10, line_format='medium')
 
     try:
         from argparse import ArgumentParser
@@ -278,7 +278,7 @@ if __name__ == '__main__':
         logger.debug('Input args: %s', cli_args)
 
         # instantiate the geo-point URL class
-        gp_url = GeoPointsURL(logger)
+        gp_url = GeoPointsURL(_logger=logger)
 
         # Call the runner
         df_out = gp_url.run(cli_args)

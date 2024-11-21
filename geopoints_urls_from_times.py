@@ -15,8 +15,8 @@
 
 import os
 import datetime as dt
-from src.common.geopoints_utilities import GeoUtilities
-from src.common.logger import LoggingUtil
+from geopoints_utilities import GeoUtilities
+from logger import LoggingUtil
 
 
 class GenerateURLsFromTimes:
@@ -337,7 +337,7 @@ class GenerateURLsEntry:
             log_level, log_path = LoggingUtil.prep_for_logging()
 
             # create a logger
-            self.logger = LoggingUtil.init_logging(_app_name, level=log_level, line_format='medium', log_file_path=log_path)
+            self.logger = LoggingUtil.init_logging(_app_name, level=log_level, line_format='medium')
 
     def run(self, args):
         """
@@ -392,8 +392,7 @@ class GenerateURLsEntry:
 
 if __name__ == '__main__':
     # setup a logger for testing
-    logger = LoggingUtil.init_logging("GenerateURLsFromTimes.test", level=10, line_format='medium',
-                                      log_file_path='./geopoints_url_from_times-test.log')
+    logger = LoggingUtil.init_logging("GenerateURLsFromTimes.test", level=10, line_format='medium')
 
     from argparse import ArgumentParser
 

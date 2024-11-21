@@ -34,7 +34,7 @@ class LoggingUtil:
         return log_path
 
     @staticmethod
-    def init_logging(name, level=logging.INFO, line_format='short', log_file_path=None):
+    def init_logging(name, level=logging.INFO, line_format='short', log_file_path=get_log_path()):
         """
             Logging utility controlling format and setting initial logging level
         """
