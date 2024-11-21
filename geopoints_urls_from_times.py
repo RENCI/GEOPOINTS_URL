@@ -391,8 +391,11 @@ class GenerateURLsEntry:
 
 
 if __name__ == '__main__':
+    # get the log level and directory from the environment.
+    log_level, log_path = LoggingUtil.prep_for_logging()
+
     # setup a logger for testing
-    logger = LoggingUtil.init_logging("GenerateURLsFromTimes.test", level=10, line_format='medium')
+    logger = LoggingUtil.init_logging("GenerateURLsFromTimes.test", level=log_level, line_format='medium', log_file_path=log_path)
 
     from argparse import ArgumentParser
 

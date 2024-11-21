@@ -22,19 +22,7 @@ class LoggingUtil:
         Creates and configures a logger
     """
     @staticmethod
-    def get_log_path() -> str:
-        """
-        gets the log path
-
-        :return:
-        """
-        log_path: str = os.getenv('LOG_PATH', os.path.dirname(__file__))
-
-        # return the log path
-        return log_path
-
-    @staticmethod
-    def init_logging(name, level=logging.INFO, line_format='short', log_file_path=get_log_path()):
+    def init_logging(name, level=logging.INFO, line_format='short', log_file_path=None):
         """
             Logging utility controlling format and setting initial logging level
         """
