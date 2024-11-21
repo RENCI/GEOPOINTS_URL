@@ -741,32 +741,6 @@ class GeoUtilities:
 
         return instance_list
 
-
-    # Expect this to be part of a looped  list of times from which appending will be applied
-    def construct_url_from_yaml(self, config, intime, instance, ensemble, gridname, hurricane_yaml_year=None, hurricane_yaml_source=None):
-        """
-        Given a single time (%Y%m%d%H) or advisory, the gridname, instance, and ensemble values
-        use the entries in config to build a proper URL
-        If applying to Hurricanes, we need to also applyld_url_list_from_yaml_and_timest the values for hurricane_yaml_year, and
-        hurricane_yaml_source
-        """
-        # hurricane_yaml_source is a special case scenario
-        if self.is_hurricane(intime):
-            self.logger.debug('Request for YAML build of Hurricane URL. subdir is %s', hurricane_yaml_source)
-            intime = str(intime)
-            subdir = hurricane_yaml_year  # This is certainly NOT generalized
-            source = hurricane_yaml_source
-        else:
-            subdir = dt.datetime.strptime(intime, '%Y%m%d%H').year
-            source = 'nam'
-
-        cfg = config['ADCIRC']
-        url = cfg["baseurl"] + cfg["dodsCpart"] % (
-        subdir, source, intime, cfg["AdcircGrid"] % (gridname), cfg["Machine"], cfg["Instance"] % (instance), cfg["Ensemble"] % (ensemble),
-        cfg["fortNumber"])
-
-        return url
-
     def construct_start_time_from_offset(self, stop_time, n_days):
         """
         Construct an appropriate start_time given the stop_time and offset.
