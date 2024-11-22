@@ -6,7 +6,7 @@
 
 import os
 from collections import namedtuple
-from src.common.geopoints_url import GeoPointsURL
+from geopoints_url import GeoPointsURL
 
 
 def test_geopoints_url():
