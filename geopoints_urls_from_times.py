@@ -238,7 +238,7 @@ class GenerateURLsEntry:
                                             instance_name=None)
                 new_urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
         else:
-            self.logger.exit('No URL was specified')
+            self.logger.debug('No URL was specified')
 
         self.logger.debug('New urls: %s', new_urls)
 
