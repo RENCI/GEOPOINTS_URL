@@ -38,24 +38,12 @@ class GenerateURLsFromTimes:
     As an example, if grabbing a nowcast, the data series may begin 6 hours before the indicated url time.
 
     Pass in a URL and the instance, gridname, are scraped from it
-    If YAML you must specify these terms.
+    Former YAML-based URL structural assignments has been deprecated. Refer original AST codes
 
-    Possible scenarios: (options such as instance/ensemble can be applied to all)
-        1) Input timein/timeout and the config_name YML (nominal name is url_framework.yml).
-               This will generate a set of URLs between the two time ranges.
-               This can work for a Hurricane, BUT timein/timeout must be ADVISORY values
-        2) Input timeout and offset and the config_name YML (nominal name is url_framework.yml).
-               This will generate a set of URLs between the two time ranges.
-               This can work for a Hurricane, BUT timeout must be ADVISORY values
-        3) Input URL and offset only.
-               This will scrape the time/advisory from the URL and offset it in 6-hour steps and
-               generate a set of URLs between the two time/advisory ranges.
-               This can work for hurricanes
+    starttime is the selected time to begin the building of the list (YYYY-mm-dd HH:MM:SS)
+    stoptime is the selected time to end the building of the list (YYYY-mm-dd HH:MM:SS)
 
-        starttime is the selected time to begin the building of the list (YYYY-mm-dd HH:MM:SS)
-        stoptime is the selected time to end the building of the list (YYYY-mm-dd HH:MM:SS)
-
-        Parameters:
+    Parameters:
         url: (str) A single URL from which more URLs may be built
         ndays: (int) Number of look back/ahead days from the stoptime value
     """
@@ -63,7 +51,7 @@ class GenerateURLsFromTimes:
         return self.__class__.__name__
 
     def __init__(self, _app_name='GenerateURLsFromTimes.TEST', _logger=None, url=None, time_in=None, time_out=None, n_days=None, grid_name=None,
-                 instance_name=None, config_name=None):
+                 instance_name=None):
         # get a handle to a logger
         self.logger = _logger
 
@@ -74,7 +62,6 @@ class GenerateURLsFromTimes:
         # The Hurricane special terms are only usedY if you are requesting to build from a YAML AND the caller wants Hurricane data
         # If a URL passed in, then gridname and instance can be gotten from it.
         # ensemble values are expected to be changed by the user
-        self.config_name = config_name
         if url is not None:
             words = url.split('/')
             self.ensemble = words[-2]
@@ -223,8 +210,6 @@ class GenerateURLsEntry:
         A simple main method to demonstrate the use of this class
         """
 
-        config_name = args.config_name if args.config_name is not None else os.path.join(os.path.dirname(__file__), '../config', 'url_framework.yml')
-
         # Set up IO env
         self.logger.debug("Product Level Working in %s.", os.getcwd())
 
@@ -240,12 +225,12 @@ class GenerateURLsEntry:
             if args.timein is not None:
                 self.logger.debug('Selecting a specific time-range procedure')
                 rpl = GenerateURLsFromTimes(_logger=self.logger, url=args.url, time_in=args.timein, time_out=args.timeout, n_days=None,
-                                            grid_name=None, instance_name=None, config_name=None)
+                                            grid_name=None, instance_name=None)
                 new_urls = rpl.build_url_list_from_template_url_and_times(ensemble=args.ensemble)
             else:
                 self.logger.debug('Selecting time+ndays procedure')
                 rpl = GenerateURLsFromTimes(_logger=self.logger, url=args.url, time_in=None, time_out=args.timeout, n_days=args.ndays, grid_name=None,
-                                            instance_name=None, config_name=None)
+                                            instance_name=None)
                 new_urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
         else:
             self.logger.exit('No URL was specified')
@@ -264,12 +249,10 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('--url', default=None, action='store', dest='url', help='Input URL that may be used to build new output urls', type=str)
+    parser.add_argument('--url', required==True, action='store', dest='url', help='Input URL that may be used to build new output urls', type=str)
     parser.add_argument('--ndays', default=None, action='store', dest='ndays', help='Day lag (usually < 0)', type=int)
     parser.add_argument('--timeout', default=None, action='store', dest='timeout', help='YYYY-mm-dd HH:MM:SS. Latest day of analysis', type=str)
     parser.add_argument('--timein', default=None, action='store', dest='timein', help='YYYY-mm-dd HH:MM:SS .Start day of analysis. ', type=str)
-    parser.add_argument('--config_name', action='store', dest='config_name', default=None,
-                        help='String: yml config which contains URL structural information')
     parser.add_argument('--instance_name', action='store', dest='instance_name', default=None,
                         help='String: Choose instance name. Required if using a YAML-based URL construction')
     parser.add_argument('--grid_name', action='store', dest='grid_name', default=None,
