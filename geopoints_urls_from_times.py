@@ -128,6 +128,7 @@ class GenerateURLsFromTimes:
         urls = []
 
         for time, instance in zip(list_of_times, list_of_instances):
+            self.logger.debug('time: %s, instance: %s', time, instance)
             words = url.split('/')
             words[-2] = ensemble
             words[-3] = self.instance_name
@@ -170,6 +171,7 @@ class GenerateURLsFromTimes:
         urls = []
 
         for time, instance in zip(list_of_times, list_of_instances):
+            self.logger.debug('time: %s, instance: %s', time, instance)
             words = url.split('/')
             words[-2] = ensemble
             words[-3] = self.instance_name
@@ -200,15 +202,18 @@ class GenerateURLsEntry:
             self.logger = _logger
         else:
             # get the log level and directory from the environment.
-            log_level, log_path = LoggingUtil.prep_for_logging()
+            __log_level, __log_path = LoggingUtil.prep_for_logging()
 
             # create a logger
-            self.logger = LoggingUtil.init_logging(_app_name, level=log_level, line_format='medium')
+            self.logger = LoggingUtil.init_logging(_app_name, level=__log_level, line_format='medium', log_file_path=__log_path)
 
     def run(self, args):
         """
         A simple main method to demonstrate the use of this class
         """
+
+        # init the return
+        new_urls: list = []
 
         # Set up IO env
         self.logger.debug("Product Level Working in %s.", os.getcwd())
@@ -235,7 +240,6 @@ class GenerateURLsEntry:
         else:
             self.logger.exit('No URL was specified')
 
-
         self.logger.debug('New urls: %s', new_urls)
 
 
@@ -249,7 +253,7 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('--url', required==True, action='store', dest='url', help='Input URL that may be used to build new output urls', type=str)
+    parser.add_argument('--url', required=True, action='store', dest='url', help='Input URL that may be used to build new output urls', type=str)
     parser.add_argument('--ndays', default=None, action='store', dest='ndays', help='Day lag (usually < 0)', type=int)
     parser.add_argument('--timeout', default=None, action='store', dest='timeout', help='YYYY-mm-dd HH:MM:SS. Latest day of analysis', type=str)
     parser.add_argument('--timein', default=None, action='store', dest='timein', help='YYYY-mm-dd HH:MM:SS .Start day of analysis. ', type=str)

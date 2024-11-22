@@ -363,6 +363,8 @@ class GeoUtilities:
 
         # Index is a loop over multiple possible lon/lat pairs
         for index, data_series, weights in zip(range(0, len(data_list)), data_list, final_weights):
+            self.logger.debug('weights: %s', weights )
+
             df_single = pd.DataFrame(index=t)
             count = 0
 
@@ -490,7 +492,7 @@ class GeoUtilities:
 
         t0 = tm.time()
         df_product_data = ag_results['final_reduced_data']
-        df_product_metadata = ag_results['final_meta_data']
+        # df_product_metadata = ag_results['final_meta_data']
         df_excluded_geopoints = pd.DataFrame(geopoints[ag_results['outside_elements']], index=ag_results['outside_elements'] + 1,
                                              columns=['lon', 'lat'])
 
@@ -499,8 +501,7 @@ class GeoUtilities:
 
         return df_product_data, df_excluded_geopoints  # , df_product_metadata
 
-    @staticmethod
-    def is_hurricane(test_val) -> bool:
+    def is_hurricane(self, test_val) -> bool:
         """
         Determine of the input test val is a Date, an Int or something else
         Parameters:
@@ -514,9 +515,12 @@ class GeoUtilities:
         except (ValueError, TypeError):
             try:
                 test = dt.datetime.strptime(test_val, '%Y%m%d%H')
+                self.logger.debug('test: %s', test)
             except Exception:
                 try:
                     out_id = int(test_val)
+                    self.logger.debug('out_id: %s', out_id)
+
                     is_hurricane = True
                 except ValueError as e:
                     raise ValueError(f'test indicates not a hurricane nor a casting. Perhaps a format issue?. Got {test_val}: Abort') from e
@@ -714,8 +718,7 @@ class GeoUtilities:
 
         return list_of_years
 
-    @staticmethod
-    def generate_list_of_instances(list_of_times, in_gridname, in_instance):
+    def generate_list_of_instances(self, list_of_times, in_gridname, in_instance):
         """
         This function matches every entry in the list_of_times with an associated instance.
         The structure of this code is such that, in the future, we may have scenarios where
@@ -732,6 +735,8 @@ class GeoUtilities:
         Returns:
             instance_list: ordered list of instances to use for building a set of new urls.
         """
+        self.logger.debug('list_of_times: %s, in_gridname: %s, in_instance: %s', list_of_times, in_gridname, in_instance)
+
         num_entries = len(list_of_times)
 
         # gridname = in_gridname  # Get default values
