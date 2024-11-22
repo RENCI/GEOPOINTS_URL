@@ -43,10 +43,10 @@ class GeoPointsURL:
             self.logger = _logger
         else:
             # get the log level and directory from the environment.
-            log_level, log_path = LoggingUtil.prep_for_logging()
+            __log_level, __log_path = LoggingUtil.prep_for_logging()
 
             # create a logger
-            self.logger = LoggingUtil.init_logging(app_name, level=log_level, line_format='medium')
+            self.logger = LoggingUtil.init_logging(app_name, level=__log_level, line_format='medium', log_file_path=__log_path)
 
         # Define some basic mappings for URL to variables names. Can override using CI variables
         self.var_mapper = {'fort': 'zeta', 'swan': 'swan_HS'}
